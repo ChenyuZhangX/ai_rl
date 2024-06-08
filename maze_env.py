@@ -95,6 +95,8 @@ class Maze(tk.Tk, object):
             reward = 0
             done = False
 
+        
+
         return s_, reward, done
 
     def render(self):
