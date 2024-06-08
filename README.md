@@ -10,7 +10,7 @@ $$\mathcal{S} = \{ (x, y) | x, y \in \{1, 2,
 
 - Action Space 
 
-$$\mathcal{A} = \leftembrace \text{up}, \text{down}, \text{left}, \text{right} \rightembrace$$
+$$\mathcal{A} = \{ \text{up}, \text{down}, \text{left}, \text{right} \}$$
 
 - Transition Probability 
 
