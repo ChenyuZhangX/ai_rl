@@ -8,6 +8,8 @@ else:
     import tkinter as tk
     from tkinter import PhotoImage
 
+from agent import Agent
+
 
 UNIT = 100   # 迷宫中每个格子的像素大小
 MAZE_H = 6  # 迷宫的高度（格子数）
@@ -94,15 +96,11 @@ class Maze(tk.Tk, object):
         else:
             reward = 0
             done = False
-
-        
-
         return s_, reward, done
 
     def render(self):
         time.sleep(0.1)
         self.update()
-
 
 def update():
     # 更新图形化界面
@@ -115,7 +113,37 @@ def update():
             if done:
                 break
 
+def random_walk():
+    s = env.reset()
+    while True:
+        env.render()
+        a = np.random.choice(env.n_actions)
+        s, r, done = env.step(a)
+        if s != 'terminal':
+            state = np.array(s) / UNIT
+            state = state.astype(int)
+            print('state:', state)
+        if done:
+            break
+
+def value_iteration():
+    agent = Agent(gamma=0.9)
+    agent.learn()
+
+    s = env.reset()
+    while True:
+        
+        if s != 'terminal':
+            state = np.array(s) / UNIT
+            state = state.astype(int)
+
+        env.render()
+        a = agent.policy(tuple(state))
+        s, r, done = env.step(a)
+        if done:
+            break
+
 if __name__ == '__main__':
     env = Maze()
-    env.after(100, update)
+    env.after(100, value_iteration)
     env.mainloop()
