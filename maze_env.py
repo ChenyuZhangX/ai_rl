@@ -8,7 +8,7 @@ else:
     import tkinter as tk
     from tkinter import PhotoImage
 
-from agent import Agent
+from agent import Agent, MCAgent
 
 
 UNIT = 100   # 迷宫中每个格子的像素大小
@@ -133,6 +133,22 @@ def value_iteration():
     s = env.reset()
     while True:
         
+        if s != 'terminal':
+            state = np.array(s) / UNIT
+            state = state.astype(int)
+
+        env.render()
+        a = agent.policy(tuple(state))
+        s, r, done = env.step(a)
+        if done:
+            break
+
+def mc_control():
+    agent = Agent(gamma=0.9)
+    agent.mc_control(10000)
+
+    s = env.reset()
+    while True:
         if s != 'terminal':
             state = np.array(s) / UNIT
             state = state.astype(int)

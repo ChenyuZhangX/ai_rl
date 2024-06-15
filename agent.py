@@ -87,6 +87,99 @@ class Agent:
             return -1
         else:
             return 0
+
+# Markov Chain  
+class MC:
+    def __init__(self):
+        self.state = []
+        self.action = []
+        self.reward = []
+
+    def append(self, state, action, reward):
+        self.state.append(state)
+        self.action.append(action)
+        self.reward.append(reward)
+
+    def afore_has(self, state, action, t):
+        for i in range(t):
+            if self.state[i] == state and self.action[i] == action:
+                return True
+        return False
+
+    def __len__(self):
+        return len(self.state)
+    
+    def __getitem__(self, index):
+        return self.state[index], self.action[index], self.reward[index]
+    
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
+
+# Monte Carlo Agent        
+class MCAgent:
+    def __init__(self, gamma = 0.9, size = (6, 6), unit = 100):
+        # list of tuples
+        self.state_space = [(i, j) for i in range(size[0]) for j in range(size[1])]
+        # list
+        self.action_space = [0, 1, 2, 3]
+
+        # action-value function 3D array
+        self.q = np.zeros(size + (4,))
+        # discount factor
+        self.gamma = gamma
+
+        # policy 2D array
+        self.pi = np.ones(size + (4,)) / 4
+        
+        # unit of the maze
+        self.unit = unit
+        # size of the maze
+        self.size = size
+
+        self.Returns = {(s, a): [] for s in self.state_space for a in self.action_space}
+
+
+       
+
+    def policy(self, state):
+        return self.pi[state]
+    
+    def as_tuple(self, s): # turn maze state to tuple
+        state = np.array(s) / self.unit
+        state = state.astype(int)
+        return tuple(state)
+    
+    def mc_control(self, env, episode = 20):
+        # for each episode
+        for t in range(episode):
+
+            s = env.reset()
+            chain = MC()
+            while True:
+
+                
+                state = self.as_tuple(s)
+                a = self.policy(state)
+                s, r, done = env.step(a)
+
+                chain.append(state, a, r)
+                if done:
+                    break
+
+            G = 0
+            # Reverse the chain
+            for 
+
+
+
+
+                
+
+
+
+            
+
         
     
 
