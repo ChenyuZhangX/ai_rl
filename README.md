@@ -1,4 +1,5 @@
 # AI Coding Homework 3: RL
+# Epsilon Greedy Policy Monte Carlo Control
 
 
 ## Problem Formulation
@@ -21,4 +22,6 @@ $$P(s' | s, a) = \begin{cases} 1 & \text{if } s' = \text{next}(s, a) \\ 0 & \tex
 $$r(s,a) = \begin{cases} 1 & \text{if } \text{ next}(s,a) == (5, 5) \\ -1 & \text{if } \text{ next}(s,a) \in \text{coord}_{stone} \\ 0 & \text{otherwise} \end{cases}$$
 
 Where $\text{next}(s, a)$ is the next state after taking action $a$ from state $s$, when done is True, the transition ends, $\text{next function}$ gives nothing. And $\text{coord}_{stone}$ is the set of coordinates of the stones.
+
+## Method
 

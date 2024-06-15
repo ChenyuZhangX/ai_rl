@@ -1,4 +1,5 @@
 import numpy as np
+import tqdm
 
 class Agent:
     def __init__(self, gamma = 0.9, size = (6, 6)):
@@ -110,7 +111,7 @@ class MC:
         return len(self.state)
     
     def __getitem__(self, index):
-        return self.state[index], self.action[index], self.reward[index]
+        return self.state[index], self.action[index], self.reward[index], index
     
     def __iter__(self):
         for i in range(len(self)):
@@ -139,49 +140,50 @@ class MCAgent:
 
         self.Returns = {(s, a): [] for s in self.state_space for a in self.action_space}
 
-
-       
-
-    def policy(self, state):
-        return self.pi[state]
+    def policy(self, state: tuple):
+        # sample an action from the policy
+        return np.random.choice(self.action_space, p = self.pi[state])
     
     def as_tuple(self, s): # turn maze state to tuple
+        assert type(s) != str, 'state should not be terminal state'
         state = np.array(s) / self.unit
         state = state.astype(int)
         return tuple(state)
     
-    def mc_control(self, env, episode = 20):
+    def mc_control(self, env, episode = 20, epsilon = 0.20, show = False):
         # for each episode
-        for t in range(episode):
-
-            s = env.reset()
+        for _ in tqdm.tqdm(range(episode)):
+        
+            s = env.random_yoki()
             chain = MC()
+            steps = 0
             while True:
-
+                if show:
+                    env.render()
                 
                 state = self.as_tuple(s)
                 a = self.policy(state)
                 s, r, done = env.step(a)
-
                 chain.append(state, a, r)
                 if done:
                     break
 
             G = 0
             # Reverse the chain
-            for 
-
-
-
-
-                
-
-
-
-            
-
-        
+            for t in range(len(chain) - 1, -1, -1):
+                state, action, reward, _ = chain[t]
+                G = self.gamma * G + reward
+                if not chain.afore_has(state, action, t):
+                    self.Returns[(state, action)].append(G)
+                    self.q[state + (action, )] = np.mean(self.Returns[(state, action)])
+                    
+                    # update policy
+                    qs = np.array([self.q[state + (a, )] for a in self.action_space])
+                    self.pi[state] = np.ones(4) * epsilon / 4
+                    self.pi[state + (np.argmax(qs), )] = 1 - epsilon + epsilon / 4
     
+    
+
 
 if __name__ == '__main__':
     agent = Agent()

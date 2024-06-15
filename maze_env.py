@@ -8,7 +8,8 @@ else:
     import tkinter as tk
     from tkinter import PhotoImage
 
-from agent import Agent, MCAgent
+from agent import Agent, MCAgent, MC
+import tqdm
 
 
 UNIT = 100   # 迷宫中每个格子的像素大小
@@ -61,6 +62,22 @@ class Maze(tk.Tk, object):
         time.sleep(0.5)
         self.canvas.delete(self.yoki)
         origin = np.array([UNIT/2, UNIT/2])
+        
+        self.yoki = self.canvas.create_image(origin[0], origin[1],image=self.bm_yoki)
+        return self.canvas.coords(self.yoki)
+
+    def random_yoki(self):
+        self.update()
+        time.sleep(0.5)
+        self.canvas.delete(self.yoki)
+        while True:
+            origin = np.array([UNIT/2, UNIT/2]) + np.array([np.random.randint(0, MAZE_W) * UNIT, np.random.randint(0, MAZE_H) * UNIT])
+            if list(origin) not in [self.canvas.coords(self.Candy), 
+                                    self.canvas.coords(self.stone1), 
+                                    self.canvas.coords(self.stone2), 
+                                    self.canvas.coords(self.stone3),
+                                    self.canvas.coords(self.stone4)]:
+                break
         
         self.yoki = self.canvas.create_image(origin[0], origin[1],image=self.bm_yoki)
         return self.canvas.coords(self.yoki)
@@ -143,23 +160,24 @@ def value_iteration():
         if done:
             break
 
+
 def mc_control():
-    agent = Agent(gamma=0.9)
-    agent.mc_control(10000)
+        
+        agent = MCAgent(gamma = 0.9)
+        agent.mc_control(env, episode = 20, show = True)
 
-    s = env.reset()
-    while True:
-        if s != 'terminal':
-            state = np.array(s) / UNIT
-            state = state.astype(int)
-
-        env.render()
-        a = agent.policy(tuple(state))
-        s, r, done = env.step(a)
-        if done:
-            break
+        s = env.reset()
+        while True:
+            if s != 'terminal':
+                state = np.array(s) / UNIT
+                state = state.astype(int)
+            env.render()
+            a = agent.policy(tuple(state))
+            s, r, done = env.step(a)
+            if done:
+                break
 
 if __name__ == '__main__':
     env = Maze()
-    env.after(100, value_iteration)
+    env.after(100, mc_control)
     env.mainloop()
