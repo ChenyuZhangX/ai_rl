@@ -249,10 +249,9 @@ class AgentMC:
                 continue
 
             hot_start -= 1
-        
+
             G = 0
             for t in range(len(chain) - 1, -1, -1):
-                print(t)
                 state, action, reward, _ = chain[t]
                 G = self.gamma * G + reward
                 if not chain.afore_has(state, action, t):
@@ -261,10 +260,10 @@ class AgentMC:
                     for idx, a in enumerate(state.actions):
                         state.q[idx] = np.mean(self.Returns[(state, a)])
                     
-                    qs = np.array([state.q[idx] for idx in range(state.dof)])
-                    
-                    state.pi = np.ones(state.dof) * epsilon / state.dof
-                    state.pi[np.argmax(qs)] = 1 - epsilon + epsilon / state.dof
+                    if epso > 100:
+                        qs = np.array([state.q[idx] for idx in range(state.dof)])
+                        state.pi = np.ones(state.dof) * epsilon / state.dof
+                        state.pi[np.argmax(qs)] = 1 - epsilon + epsilon / state.dof
 
             print(f"Episode {epso + 1} Reward: {G} length: {len(chain)}")
 
@@ -307,8 +306,8 @@ class AgentMC:
                 s = (next_state.pos[0] * self.unit, next_state.pos[1] * self.unit)
 
             reward = 0
-            for r in reversed(rewards):
-               reward += self.gamma * reward + r
+            for r in rewards[::-1]:
+               reward = self.gamma * reward + r
             
             hot_start -= 1
 
@@ -327,11 +326,6 @@ class AgentMC:
         for a in track:
             env.render()
             s, r, done = env.step(a)
-
-
-
-
-
 
 
     def save(self, path):

@@ -27,10 +27,10 @@ def parse_args():
 
     # hyperparameters
     parser.add_argument('--gamma', type=float, default=0.9, help='Discount factor')
-    parser.add_argument('--episode', type=int, default=20, help='Number of episodes')
-    parser.add_argument('--epsilon', type=float, default=0.80, help='Epsilon greedy')
+    parser.add_argument('--episode', type=int, default=200, help='Number of episodes')
+    parser.add_argument('--epsilon', type=float, default=0.20, help='Epsilon greedy')
     parser.add_argument('--show', type=bool, default=True, help='Show the maze')
-    parser.add_argument('--hot_start', type=int, default=80, help='Number of hot start')
+    parser.add_argument('--hot_start', type=int, default=200, help='Number of hot start')
     parser.add_argument('--from_origin', type=bool, default=False, help='Start from origin')
     
     return parser.parse_args()
@@ -217,6 +217,8 @@ def mc_control():
 
 def q_learning():
     agent = AgentMC(gamma = args.gamma, unit = UNIT, size = (MAZE_W, MAZE_H))
+    print('Q-learning')
+    print('gamma:', args.gamma, 'episode:', args.episode, 'epsilon:', args.epsilon, 'show:', args.show, 'hot_start:', args.hot_start, 'from_origin:', args.from_origin)
     agent.q_learning(env, episode = args.episode, epsilon = args.epsilon, show = args.show, hot_start = args.hot_start, from_origin=args.from_origin)
     agent.save(args.ckpt)
 
