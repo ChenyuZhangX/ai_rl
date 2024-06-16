@@ -1,6 +1,4 @@
 # AI Coding Homework 3: RL
-# Epsilon Greedy Policy Monte Carlo Control
-
 
 ## Problem Formulation
 
@@ -24,4 +22,23 @@ $$r(s,a) = \begin{cases} 1 & \text{if } \text{ next}(s,a) == (5, 5) \\ -1 & \tex
 Where $\text{next}(s, a)$ is the next state after taking action $a$ from state $s$, when done is True, the transition ends, $\text{next function}$ gives nothing. And $\text{coord}_{stone}$ is the set of coordinates of the stones.
 
 ## Method
+
+- **Value Iteration**: Super effective
+
+- **Monte Carlo Control**: Super slow because it is easy to get stuck by the stones
+
+- **Q learning**: Super slow, also by the stones
+
+## Run
+
+```python
+# train the agent
+python maze_env.py --mode train --algo vi # Value Iteration, mc, q for Monte Carlo Control, Q learning, og for run on a given track
+
+# test the trained policy, only for mc and q
+python maze_env.py --mode test --ckpt agent.pkl 
+```
+
+
+
 
