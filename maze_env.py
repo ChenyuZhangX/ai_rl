@@ -8,8 +8,32 @@ else:
     import tkinter as tk
     from tkinter import PhotoImage
 
-from agent import Agent, MCAgent, MC
+from agent import Agent, AgentMC
 import tqdm
+import pickle
+
+import argparse
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Maze')
+    
+    # agent
+    parser.add_argument('--algo', type=str, default='mc', help='Agent to use') # mc, vi
+    
+    # mode
+    parser.add_argument('--mode', type=str, default='train', help='Mode') # train, test
+    parser.add_argument('--ckpt', type=str, default='agent.pkl', help='Model checkpoint')
+
+    # hyperparameters
+    parser.add_argument('--gamma', type=float, default=0.9, help='Discount factor')
+    parser.add_argument('--episode', type=int, default=20, help='Number of episodes')
+    parser.add_argument('--epsilon', type=float, default=0.80, help='Epsilon greedy')
+    parser.add_argument('--show', type=bool, default=True, help='Show the maze')
+    parser.add_argument('--hot_start', type=int, default=80, help='Number of hot start')
+    parser.add_argument('--from_origin', type=bool, default=False, help='Start from origin')
+    
+    return parser.parse_args()
 
 
 UNIT = 100   # 迷宫中每个格子的像素大小
@@ -62,6 +86,22 @@ class Maze(tk.Tk, object):
         time.sleep(0.5)
         self.canvas.delete(self.yoki)
         origin = np.array([UNIT/2, UNIT/2])
+        
+        self.yoki = self.canvas.create_image(origin[0], origin[1],image=self.bm_yoki)
+        return self.canvas.coords(self.yoki)
+
+    def set_yoki(self, state):
+        self.update()
+        time.sleep(0.5)
+        self.canvas.delete(self.yoki)
+        origin = np.array([UNIT/2, UNIT/2]) + np.array([UNIT * state[0], UNIT * state[1]])
+        
+        if list(origin) in [self.canvas.coords(self.Candy), 
+                            self.canvas.coords(self.stone1), 
+                            self.canvas.coords(self.stone2), 
+                            self.canvas.coords(self.stone3),
+                            self.canvas.coords(self.stone4)]:
+            return self.random_yoki()
         
         self.yoki = self.canvas.create_image(origin[0], origin[1],image=self.bm_yoki)
         return self.canvas.coords(self.yoki)
@@ -160,24 +200,73 @@ def value_iteration():
         if done:
             break
 
-
 def mc_control():
-        
-        agent = MCAgent(gamma = 0.9)
-        agent.mc_control(env, episode = 20, show = True)
+    agent = AgentMC(gamma = args.gamma, unit = UNIT, size = (MAZE_W, MAZE_H))
+    agent.mc_control(env, episode = args.episode, epsilon = args.epsilon, show = args.show, hot_start = args.hot_start, from_origin=args.from_origin)
+    agent.save(args.ckpt)
 
-        s = env.reset()
-        while True:
-            if s != 'terminal':
-                state = np.array(s) / UNIT
-                state = state.astype(int)
-            env.render()
-            a = agent.policy(tuple(state))
-            s, r, done = env.step(a)
-            if done:
-                break
+    s = env.reset()
+
+    while True:
+        env.render()
+        state = agent.get_state(agent.as_tuple(s))
+        a = agent.get_action(state)
+        s, r, done = env.step(a)
+        if done:
+            break
+
+def q_learning():
+    agent = AgentMC(gamma = args.gamma, unit = UNIT, size = (MAZE_W, MAZE_H))
+    agent.q_learning(env, episode = args.episode, epsilon = args.epsilon, show = args.show, hot_start = args.hot_start, from_origin=args.from_origin)
+    agent.save(args.ckpt)
+
+    s = env.reset()
+
+    while True:
+        env.render()
+        state = agent.get_state(agent.as_tuple(s))
+        a = agent.get_action(state)
+        s, r, done = env.step(a)
+        if done:
+            break
+
+def on_given():
+    agent = AgentMC(gamma = args.gamma, unit = UNIT, size = (MAZE_W, MAZE_H))
+    agent.on_given(env)
+
+def main():
+
+    if args.mode == 'train':
+        if args.algo == 'mc':
+            env.after(100, mc_control)
+        elif args.algo == 'q':
+            env.after(100, q_learning)
+        elif args.algo == 'vi':
+            env.after(100, value_iteration)
+        elif args.algo == 'og':
+            env.after(100, on_given)
+        else:
+            env.after(100, random_walk)
+    else:
+        env.after(100, run)
+
+
+def run():
+    agent = pickle.load(open(args.ckpt, 'rb'))
+
+    s = env.reset()
+
+    while True:
+        env.render()
+        state = agent.get_state(agent.as_tuple(s))
+        a = agent.get_action(state)
+        s, r, done = env.step(a)
+        if done:
+            break
 
 if __name__ == '__main__':
+    np.random.seed(6)
+    args = parse_args()
     env = Maze()
-    env.after(100, mc_control)
+    main()
     env.mainloop()
