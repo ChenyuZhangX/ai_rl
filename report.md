@@ -1,6 +1,6 @@
 # AI Coding Homework 3: RL
 
-###### 欢迎访问本项目github仓库：[
+###### 欢迎访问本项目github仓库：[AI Coding Homework 3: RL](https://github.com/ChenyuZhangX/ai_rl)
 
 ## Problem Formulation
 

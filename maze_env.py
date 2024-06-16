@@ -19,7 +19,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Maze')
     
     # agent
-    parser.add_argument('--algo', type=str, default='mc', help='Agent to use') # mc, vi
+    parser.add_argument('--algo', type=str, default='vi', help='Agent to use') # mc, vi
     
     # mode
     parser.add_argument('--mode', type=str, default='train', help='Mode') # train, test
